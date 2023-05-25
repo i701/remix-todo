@@ -26,7 +26,7 @@ export default function Example() {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <Link to="/todos" className="flex items-center">
+        <Link to="#" className="flex items-center">
           Todos
         </Link>
       </Typography>
