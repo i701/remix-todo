@@ -8,15 +8,16 @@ import {
   ScrollRestoration,
 } from "@remix-run/react"
 import type { PropsWithChildren } from "react"
-
-import stylesheet from "~/tailwind.css"
 import Navbar from "./components/Navbar"
 
+import stylesheet from "~/tailwind.css"
+
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: stylesheet },
+  { rel: "stylesheet", href: stylesheet, as: "style" },
   {
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap",
+    as: "font",
   },
 ]
 
