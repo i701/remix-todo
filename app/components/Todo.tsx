@@ -12,6 +12,11 @@ export default function TodoItem({ content, id, isComplete }: TodoType) {
     navigation.formData.get("_action") === "delete" &&
     navigation.formData.get("todoId") === id
 
+  const isCheckingOff =
+    navigation.state === "submitting" &&
+    navigation.formData.get("_action") === "complete" &&
+    navigation.formData.get("todoId") === id
+
   const submit = useSubmit()
 
   const handleChange: ChangeEventHandler<HTMLFormElement> = (event) => {
@@ -22,6 +27,7 @@ export default function TodoItem({ content, id, isComplete }: TodoType) {
       <div className="flex gap-1 items-center">
         <Form method="post" onChange={handleChange} className="leading-[0]">
           <Checkbox
+            disabled={isCheckingOff}
             type="checkbox"
             name="isCompleted"
             id="isCompleted"
@@ -32,7 +38,12 @@ export default function TodoItem({ content, id, isComplete }: TodoType) {
           <input type="hidden" name="todoId" value={id} />
           <input type="hidden" name="_action" value="complete" />
         </Form>
-        <p className={`${isComplete ? "line-through" : null}`}>{content}</p>
+        <p
+          className={`${isComplete ? "line-through opacity-30" : null}
+          ${isCheckingOff ? "opacity-50" : null}`}
+        >
+          {content}
+        </p>
       </div>
       <Form method="post">
         <Button
@@ -42,6 +53,7 @@ export default function TodoItem({ content, id, isComplete }: TodoType) {
           name="_action"
           value="delete"
           variant="gradient"
+          disabled={isDeletingTodo}
         >
           {isDeletingTodo ? (
             <Spinner color="red" className="h-4 w-4" />

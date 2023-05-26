@@ -150,7 +150,7 @@ export default function Index() {
             {actionData.fieldErrors.content}
           </p>
         ) : null}
-        <Button name="_action" value="create" type="submit">
+        <Button disabled={isAdding} name="_action" value="create" type="submit">
           {isAdding ? <Spinner className="h-4 w-4" /> : "Add"}
         </Button>
       </Form>
