@@ -6,9 +6,13 @@ import {
   IconButton,
   Collapse,
 } from "@material-tailwind/react"
-import { Link } from "@remix-run/react"
+import { Form, Link, useLoaderData } from "@remix-run/react"
 
-export default function Example() {
+export default function NavbarComponent({
+  isAuthenticated,
+}: {
+  isAuthenticated: boolean
+}) {
   const [openNav, setOpenNav] = React.useState(false)
 
   React.useEffect(() => {
@@ -26,28 +30,8 @@ export default function Example() {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <Link to="#" className="flex items-center">
+        <Link to="/todos" className="flex items-center">
           Todos
-        </Link>
-      </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <Link to="#" className="flex items-center">
-          Completed
-        </Link>
-      </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <Link to="#" className="flex items-center">
-          Pending
         </Link>
       </Typography>
     </ul>
@@ -62,13 +46,28 @@ export default function Example() {
           </Link>
           <div className="flex items-center gap-4">
             <div className="mr-4 hidden lg:block">{navList}</div>
-            <Button
-              variant="gradient"
-              size="sm"
-              className="hidden lg:inline-block"
-            >
-              <span>Buy Now</span>
-            </Button>
+            {isAuthenticated ? (
+              <Form method="post">
+                <Button
+                  name="_action"
+                  value="logout"
+                  type="submit"
+                  className="hidden lg:inline-block"
+                >
+                  Logout
+                </Button>
+              </Form>
+            ) : (
+              <Link to="/login">
+                <Button
+                  variant="gradient"
+                  size="sm"
+                  className="hidden lg:inline-block"
+                >
+                  <span>Login</span>
+                </Button>
+              </Link>
+            )}
             <IconButton
               variant="text"
               className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
@@ -110,9 +109,24 @@ export default function Example() {
         </div>
         <Collapse open={openNav}>
           {navList}
-          <Button variant="gradient" size="sm" fullWidth className="mb-2">
-            <span>Buy Now</span>
-          </Button>
+          {isAuthenticated ? (
+            <Form method="post">
+              <Button name="_action" value="logout" type="submit">
+                Logout
+              </Button>
+            </Form>
+          ) : (
+            <Link to="/login">
+              <Button
+                variant="gradient"
+                size="sm"
+                name="_action"
+                value="logout"
+              >
+                <span>Login</span>
+              </Button>
+            </Link>
+          )}
         </Collapse>
       </Navbar>
     </>
