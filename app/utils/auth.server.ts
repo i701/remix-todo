@@ -5,7 +5,9 @@ import bcrypt from "bcryptjs"
 import { User } from "@prisma/client"
 import { db } from "./db.server"
 
-const authenticator = new Authenticator<User>(sessionStorage)
+const authenticator = new Authenticator<User>(sessionStorage, {
+  throwOnError: true,
+})
 
 const formStrategy = new FormStrategy(async ({ form }) => {
   const email = form.get("email") as string
@@ -33,3 +35,11 @@ const formStrategy = new FormStrategy(async ({ form }) => {
 authenticator.use(formStrategy, "form")
 
 export { authenticator }
+
+export async function getUserId(request: Request) {
+  const user = await authenticator.isAuthenticated(request)
+  if (!user) {
+    return null
+  }
+  return user?.id
+}
