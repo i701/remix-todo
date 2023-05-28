@@ -13,7 +13,6 @@ export default function Pagination({
 }: PaginationProps) {
   const [searchParams] = useSearchParams()
   const activePage = searchParams.get("page")
-  console.log({ activePage })
   const previousPage = currentPage > 1 ? currentPage - 1 : null
   const nextPage = currentPage < totalPages ? currentPage + 1 : null
 
@@ -22,7 +21,9 @@ export default function Pagination({
       <div className="flex items-center gap-2">
         {Array.from({ length: totalPages }).map((_, i) => (
           <Link key={i} to={`?page=${i + 1}`}>
-            <IconButton>{i + 1}</IconButton>
+            <IconButton variant={activePage === `${i + 1}` ? "filled" : "text"}>
+              {i + 1}
+            </IconButton>
           </Link>
         ))}
       </div>
