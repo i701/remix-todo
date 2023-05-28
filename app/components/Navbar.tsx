@@ -7,11 +7,14 @@ import {
   Collapse,
 } from "@material-tailwind/react"
 import { Form, Link, useLoaderData } from "@remix-run/react"
+import { User } from "@prisma/client"
 
 export default function NavbarComponent({
   isAuthenticated,
+  user,
 }: {
   isAuthenticated: boolean
+  user: Partial<User>
 }) {
   const [openNav, setOpenNav] = React.useState(false)
 
@@ -47,7 +50,7 @@ export default function NavbarComponent({
           <div className="flex items-center gap-4">
             <div className="mr-4 hidden lg:block">{navList}</div>
             {isAuthenticated ? (
-              <Form method="post">
+              <Form method="post" action="/logout">
                 <Button
                   name="_action"
                   value="logout"
@@ -68,6 +71,9 @@ export default function NavbarComponent({
                 </Button>
               </Link>
             )}
+            <Typography variant="paragraph">
+              {user && `Hello ${user.email}`}
+            </Typography>
             <IconButton
               variant="text"
               className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
@@ -110,7 +116,7 @@ export default function NavbarComponent({
         <Collapse open={openNav}>
           {navList}
           {isAuthenticated ? (
-            <Form method="post">
+            <Form method="post" action="/logout">
               <Button name="_action" value="logout" type="submit">
                 Logout
               </Button>
