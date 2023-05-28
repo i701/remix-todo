@@ -6,7 +6,7 @@ import {
   IconButton,
   Collapse,
 } from "@material-tailwind/react"
-import { Form, Link, useLoaderData } from "@remix-run/react"
+import { Form, Link, NavLink, useLoaderData } from "@remix-run/react"
 import { User } from "@prisma/client"
 
 export default function NavbarComponent({
@@ -33,9 +33,14 @@ export default function NavbarComponent({
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <Link to="/todos" className="flex items-center">
+        <NavLink
+          to="/todos"
+          className={({ isActive }) =>
+            isActive ? "text-blue-500 font-bold" : ""
+          }
+        >
           Todos
-        </Link>
+        </NavLink>
       </Typography>
     </ul>
   )
@@ -44,9 +49,16 @@ export default function NavbarComponent({
     <>
       <Navbar className="sticky inset-0 z-10 h-max max-w-full rounded-none py-2 px-4 lg:px-8 lg:py-4">
         <div className="flex items-center justify-between text-blue-gray-900">
-          <Link to="/" className="mr-4 cursor-pointer py-1.5 font-medium">
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              isActive
+                ? "text-blue-500 font-bold"
+                : "mr-4 cursor-pointer py-1.5 font-medium"
+            }
+          >
             Remix Todo
-          </Link>
+          </NavLink>
           <div className="flex items-center gap-4">
             <div className="mr-4 hidden lg:block">{navList}</div>
             {isAuthenticated ? (
@@ -71,13 +83,11 @@ export default function NavbarComponent({
                 </Button>
               </Link>
             )}
-            <Typography variant="paragraph">
-              {user && `Hello ${user.email}`}
-            </Typography>
+            <p className="text-sm">{user && user.email}</p>
             <IconButton
               variant="text"
               className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
-              ripple={false}
+              ripple={true}
               onClick={() => setOpenNav(!openNav)}
             >
               {openNav ? (
