@@ -37,7 +37,7 @@ if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be set")
 }
 
-const storage = createCookieSessionStorage({
+export const storage = createCookieSessionStorage({
   cookie: {
     name: "RJ_session",
     // normally you want this to be `secure: true`
@@ -93,6 +93,23 @@ export async function getUser(request: Request) {
   } catch {
     throw logout(request)
   }
+}
+
+export async function requireAuthRole(request: Request, userRole: string) {
+  const userId = await getUserId(request)
+  if (typeof userId !== "string") {
+    return null
+  }
+
+  const user = await db.user.findUnique({
+    select: { id: true, role: true },
+    where: { id: userId },
+  })
+  console.log(user)
+  if (user?.role !== userRole) {
+    throw redirect("/")
+  }
+  return user
 }
 
 export async function logout(request: Request) {
