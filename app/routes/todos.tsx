@@ -1,7 +1,8 @@
-import type {
+import {
   ActionFunction,
   LoaderFunction,
   V2_MetaFunction,
+  redirect,
 } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { Button, Input, Spinner, Typography } from "@material-tailwind/react"
@@ -9,7 +10,6 @@ import {
   Form,
   isRouteErrorResponse,
   useActionData,
-  useCatch,
   useLoaderData,
   useNavigation,
   useRouteError,
@@ -108,7 +108,15 @@ export const loader: LoaderFunction = async ({ request }) => {
   await requireAuthRole(request, "ADMIN")
   const userId = (await getUserId(request)) as string
 
-  const page = Number(new URL(request.url).searchParams.get("page")) || 1
+  const url = new URL(request.url)
+  let page = Number(url.searchParams.get("page")) || 1
+  if (page < 2) {
+    if (!url.searchParams.has("page")) {
+      url.searchParams.set("page", "1")
+      const newUrl = url.toString()
+      return Response.redirect(newUrl, 302)
+    }
+  }
   const limit = 5
   const offset = (page - 1) * limit
 
