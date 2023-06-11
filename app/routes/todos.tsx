@@ -7,17 +7,22 @@ import { json } from "@remix-run/node"
 import { Button, Input, Spinner, Typography } from "@material-tailwind/react"
 import {
   Form,
-  Link,
+  isRouteErrorResponse,
   useActionData,
+  useCatch,
   useLoaderData,
   useNavigation,
+  useRouteError,
 } from "@remix-run/react"
 import { db } from "~/utils/db.server"
 import { badRequest } from "~/utils/request.server"
 import { useEffect, useRef } from "react"
 import TodoItem from "~/components/Todo"
-import NavbarComponent from "~/components/Navbar"
-import { getUserId, requireUserId } from "~/utils/session.server"
+import {
+  getUserId,
+  requireAuthRole,
+  requireUserId,
+} from "~/utils/session.server"
 import Pagination from "~/components/Pagination"
 
 export const meta: V2_MetaFunction = () => {
@@ -100,14 +105,9 @@ export const action: ActionFunction = async ({ request }) => {
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUserId(request)
+  await requireAuthRole(request, "ADMIN")
   const userId = (await getUserId(request)) as string
-  // const todos = await db.todo.findMany({
-  //   where: {
-  //     userId,
-  //   },
-  // })
 
-  // Default to page 1 if no page is provided
   const page = Number(new URL(request.url).searchParams.get("page")) || 1
   const limit = 5
   const offset = (page - 1) * limit
@@ -118,6 +118,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     },
     skip: offset,
     take: limit,
+    orderBy: {
+      createdAt: "desc",
+    },
   })
 
   const totalTodos = await db.todo.count({
@@ -144,8 +147,6 @@ export default function Index() {
   }, [isAdding])
 
   const totalPages = Math.ceil(totalTodos / 5)
-  const previousPage = page > 1 ? page - 1 : null
-  const nextPage = page < totalPages ? page + 1 : null
 
   return (
     <div>
@@ -182,7 +183,7 @@ export default function Index() {
             }
           />
           {actionData?.fieldErrors?.content ? (
-            <p className="text-sm text-red-500" id="name-error" role="alert">
+            <p className="text-xs text-red-500" id="name-error" role="alert">
               {actionData.fieldErrors.content}
             </p>
           ) : null}
@@ -200,19 +201,31 @@ export default function Index() {
 
       {/* Pagination  */}
       <Pagination currentPage={page} totalPages={totalPages} />
-      {/* <div className="flex gap-2">
-        {previousPage && <Link to={`?page=${previousPage}`}>Previous</Link>}
-        {Array.from({ length: totalPages }).map((_, i) => (
-          <Link
-            key={i}
-            to={`?page=${i + 1}`}
-            className={i + 1 === page ? "active" : ""}
-          >
-            {i + 1}
-          </Link>
-        ))}
-        {nextPage && <Link to={`?page=${nextPage}`}>Next</Link>}
-      </div> */}
     </div>
   )
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError()
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div className="rounded bg-red-100 p-2">
+        <h1 className="font-bold text-red-900">{error.status}</h1>
+        <p>{error.statusText}</p>
+        <p className="text-red-400">{error.data}</p>
+      </div>
+    )
+  } else if (error instanceof Error) {
+    return (
+      <div>
+        <h1>Error</h1>
+        <p>{error.message}</p>
+        <p>The stack trace is:</p>
+        <pre>{error.stack}</pre>
+      </div>
+    )
+  } else {
+    return <h1>Unknown Error</h1>
+  }
 }
