@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, redirect } from "@remix-run/node"
+import { Response, createCookieSessionStorage, redirect } from "@remix-run/node"
 import bcrypt from "bcryptjs"
 
 import { db } from "./db.server"
@@ -107,7 +107,10 @@ export async function requireAuthRole(request: Request, userRole: string) {
   })
   console.log(user)
   if (user?.role !== userRole) {
-    throw redirect("/")
+    throw new Response("Unauthorized", {
+      status: 401,
+      statusText: "You do not have privileges to access this page.",
+    })
   }
   return user
 }
