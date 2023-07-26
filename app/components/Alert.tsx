@@ -1,5 +1,5 @@
 import { useState, Fragment } from "react"
-import { Alert, Button } from "@material-tailwind/react"
+import { Alert } from "@material-tailwind/react"
 
 export default function AlertComponent({ error }: { error: string }) {
   const [open, setOpen] = useState(true)
