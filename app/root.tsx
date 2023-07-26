@@ -1,4 +1,9 @@
-import type { LinksFunction } from "@remix-run/node"
+import {
+  ActionFunction,
+  LinksFunction,
+  LoaderFunction,
+  json,
+} from "@remix-run/node"
 import {
   Links,
   LiveReload,
@@ -6,11 +11,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react"
-import type { PropsWithChildren } from "react"
-import Navbar from "./components/Navbar"
+import { PropsWithChildren, useEffect } from "react"
 
 import stylesheet from "~/tailwind.css"
+import NavbarComponent from "./components/Navbar"
+import { getUser } from "./utils/session.server"
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet, as: "style" },
@@ -20,6 +27,15 @@ export const links: LinksFunction = () => [
     as: "font",
   },
 ]
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await getUser(request)
+  return user
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  return null
+}
 
 function Document({
   children,
@@ -44,10 +60,14 @@ function Document({
 }
 
 export default function App() {
+  const authenticatedUser = useLoaderData<typeof loader>()
   return (
     <Document>
-      <Navbar />
-      <div className="py-4 max-w-lg mx-auto">
+      <NavbarComponent
+        isAuthenticated={authenticatedUser ? true : false}
+        user={authenticatedUser}
+      />
+      <div className="p-4 max-w-lg mx-auto">
         <Outlet />
       </div>
     </Document>
